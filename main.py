@@ -34,6 +34,11 @@ def get_fun_fact(n):
     response = requests.get(f"http://numbersapi.com/{n}/math")
     return response.text if response.status_code == 200 else "No fun fact available"
 
+@app.route('/')
+def home():
+    return '<h1> Welcome TRy GET /api/classify-number?number={your choice} </h1>'
+
+
 @app.route('/api/classify-number', methods=['GET'])
 def classify_number():
     number = request.args.get('number')
@@ -64,4 +69,4 @@ def classify_number():
 
 
 if __name__ == '__main__':
-    app.run(port=0.0.0.0)
+    app.run(host='0.0.0.0')
