@@ -26,9 +26,9 @@ def is_perfect(n):
     return sum_divisors == n
 
 def is_armstrong(n):
-    digits = [int(d) for d in str(n)]
+    digits = [int(d) for d in str(abs(n))]  # Use absolute value to handle negative numbers
     num_digits = len(digits)
-    return sum(d ** num_digits for d in digits) == n
+    return sum(d ** num_digits for d in digits) == abs(n)  # Compare with absolute value
 
 def get_fun_fact(n):
     response = requests.get(f"http://numbersapi.com/{n}/math")
@@ -36,16 +36,18 @@ def get_fun_fact(n):
 
 @app.route('/')
 def home():
-    return '<h1> Welcome TRy GET /api/classify-number?number={your choice} </h1>'
-
+    return '<h1> Welcome! Try GET /api/classify-number?number={your choice} </h1>'
 
 @app.route('/api/classify-number', methods=['GET'])
 def classify_number():
     number = request.args.get('number')
-    if not number.isdigit():
+    
+    # Handle negative numbers and non-digit inputs
+    try:
+        number = int(number)  # Convert to integer (handles negative numbers)
+    except (ValueError, TypeError):
         return jsonify({"number": number, "error": True}), 400
     
-    number = int(number)
     properties = []
     if is_armstrong(number):
         properties.append("armstrong")
@@ -54,19 +56,17 @@ def classify_number():
     else:
         properties.append("odd")
     
-    digit_sum = sum(int(d) for d in str(number))
+    digit_sum = sum(int(d) for d in str(abs(number)))  # Use absolute value for digit sum
     fun_fact = get_fun_fact(number)
 
     return jsonify({
         "number": number,
-        "is_prime": is_prime(number),
-        "is_perfect": is_perfect(number),
+        "is_prime": is_prime(abs(number)),  # Use absolute value for prime check
+        "is_perfect": is_perfect(abs(number)),  # Use absolute value for perfect check
         "properties": properties,
         "digit_sum": digit_sum,
         "fun_fact": fun_fact
     }), 200
-    
-
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host='0.0.0.0', port=5000)
